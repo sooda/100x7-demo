@@ -304,10 +304,29 @@ def invader():
         displol(splitscreen(xriin))
         sleep(0.05)
 
-invader()
+#invader()
 
 #nanana()
 #batana()
+
+def wavings():
+    freq1 = 2.0 * 2 * np.pi / 120
+    spikes = 1.0 * 2 * np.pi / 120
+    tt = 1.1111
+    tt2=0
+    for time in range(1000):
+        asd = []
+        for x in range(120):
+            s1 = np.sin((x + tt*time) * freq1)
+            s2 = np.sin((x - tt*time) * freq1)
+            s3 = np.sin((x - tt2*time) * spikes)
+            color= (s1+s2)/2*s3
+            color /= 2
+            color += 0.5
+            asd.append(0x7f & (1 << (int(7*color))))
+        displol(splitscreen(asd))
+
+wavings()
 
 1/0
 
