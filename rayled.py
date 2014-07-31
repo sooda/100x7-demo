@@ -258,21 +258,51 @@ def splitscreen(src):
 
 def blit(dst,src,x,y):
     for i,v in enumerate(src):
-        dst[x+i] = v << y
+        if y >= 0:
+            dst[x+i] |= v << y
+        else:
+            dst[x+i] |= v >> -y
 
 def invader():
     plus = [0x2, 0x7, 0x2]
     ship = [5, 2]
     block = [3, 3]
-    blks = [(randint(0,100),randint(0,5)) for _ in range(10)]
-    for y in range(5):
-        for x in range(98):
-            xriin = empty() * 20
-            blit(xriin, ship, x, y)
-            for b in blks:
-                blit(xriin,block,b[0],b[1])
-            #displol((xriin))
-            displol(splitscreen(xriin))
+    ammo = [1]
+    blks = [[randint(5,95),randint(0,5)] for _ in range(10)]
+    blks.sort()
+    ammoflying = 0
+    ammox = ammoy = 0
+    shipy = 0
+    while True:
+        for bl in blks:
+            bl[0] -= 1
+        if ammoflying:
+            ammox += 3
+            if ammox >= blks[0][0]:
+                ammoflying = 0
+                blks = blks[1:]
+                if len(blks) == 0:
+                    break
+        if ammoflying == 0 and shipy+1 == blks[0][1]:
+            ammox = 1
+            ammoy = shipy + 1
+            ammoflying = 1
+
+        nextshoot = 1 if ammoflying and len(blks) > 1 else 0
+        if shipy + 1 > blks[nextshoot][1]:
+            shipy -= 1
+        elif shipy + 1 < blks[nextshoot][1]:
+            shipy += 1
+
+        xriin = [0] * 100
+        blit(xriin, ship, 0, shipy)
+        if ammoflying:
+            blit(xriin, ammo, ammox, ammoy)
+        for b in blks:
+            blit(xriin,block,b[0],b[1])
+        #displol((xriin))
+        displol(splitscreen(xriin))
+        sleep(0.05)
 
 invader()
 
