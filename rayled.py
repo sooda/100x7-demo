@@ -470,7 +470,11 @@ def centertext(txt):
 def center(gfx):
     spos = 50 - len(gfx)/2
     empty = [0] * spos
-    return empty + gfx + empty
+    if len(gfx) & 1:
+        empty2 = empty[:-1]
+    else:
+        empty2 = empty
+    return empty + gfx + empty2
 
 def disptext(msg):
     displol(text(msg))
@@ -507,18 +511,18 @@ def surround(buf, style, pos):
             for i,b in enumerate(buf)]
     # right
     corner = (pos+len(buf)-1) % len(style)
-    rows = style2[corner:corner+8]
+    rows = style2[corner:corner+7]
     rows = rows[:7]
     buf[-1] = fromgfx(*list(rows))[0]
 
     # bottom
     buf = [b |
-            (0x40 if style[(pos+len(buf)-1+7+i*(len(style)-1)) % len(style)] != " " else 0)
+            (0x40 if style[(pos+len(buf)+1+7+i*(len(style)-1)) % len(style)] != " " else 0)
             for i,b in enumerate(buf)]
 
     # left
-    corner = ((len(style)-1)*pos+len(buf)-1+7-len(buf)) % len(style)
-    rows = style2[corner:corner+8]
+    corner = ((len(style)-1)*pos+len(buf)+1+7-len(buf)) % len(style)
+    rows = style2[corner:corner+7]
     rows = rows[:7]
     buf[0] = fromgfx(*list(rows))[0]
     return buf
