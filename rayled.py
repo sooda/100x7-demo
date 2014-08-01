@@ -309,6 +309,8 @@ def invader():
 #nanana()
 #batana()
 
+def gol():
+
 def wavings():
     freq1 = 2.0 * 2 * np.pi / 120
     spikes = 1.0 * 2 * np.pi / 120
@@ -326,7 +328,9 @@ def wavings():
             asd.append(0x7f & (1 << (int(7*color))))
         displol(splitscreen(asd))
 
-wavings()
+#wavings()
+
+gol()
 
 1/0
 
