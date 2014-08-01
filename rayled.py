@@ -11,30 +11,6 @@ from random import randint
 im = Image.open("font.png")
 pix = im.load()
 
-def readimg(xstart):
-    cols = []
-    for x in range(xstart,xstart+5):
-        thiscol = 0
-        for y in range(7):
-            black = pix[x,6-y][0] == 0
-            thiscol <<= 1
-            thiscol |= int(black)
-        cols.append(thiscol)
-    return cols
-
-_fontcache = {}
-def glyph(ch):
-    gfx = _fontcache.get(ch)
-    if gfx is None:
-        gfx = readimg((ord(ch)-ord(' ')) * 5)
-        _fontcache[ch] = gfx
-    return gfx
-
-def text(tx):
-    r = []
-    for t in tx:
-        r.extend(glyph(t))
-    return r
 # 5x7
 
 # fromgfx(row0,row1,row2,..) rows same len
@@ -59,6 +35,31 @@ def bar(i):
 def emptys(n):
     return empty() * n
 
+def readimg(xstart):
+    cols = []
+    for x in range(xstart,xstart+5):
+        thiscol = 0
+        for y in range(7):
+            black = pix[x,6-y][0] == 0
+            thiscol <<= 1
+            thiscol |= int(black)
+        cols.append(thiscol)
+    return cols
+
+_fontcache = {}
+_fontcache["\r"] = ["\x7f"] * 5
+def glyph(ch):
+    gfx = _fontcache.get(ch)
+    if gfx is None:
+        gfx = readimg((ord(ch)-ord(' ')) * 5)
+        _fontcache[ch] = gfx
+    return gfx
+
+def text(tx):
+    r = []
+    for t in tx:
+        r.extend(glyph(t))
+    return r
 s = serial.Serial("/dev/ttyUSB0", 38400)
 
 s.write("\x80")
@@ -399,9 +400,37 @@ def wavings():
             asd.append(0x7f & (1 << (int(7*color))))
         displol(splitscreen(asd))
 
+
+def disptext(msg):
+    displol(text(msg))
+
+def textwait(msg, delay):
+    disptext(msg + " " * (20 - len(msg)))
+    sleep(delay)
+
+def textswait(msgs, delay, cycles):
+    n = 0
+    for i in range(cycles):
+        textwait(msgs[n], delay)
+        n = (n + 1) % len(msgs)
+
+def textscrollin(msg, delay, interdelay):
+    for i in range(len(msg)):
+        textwait(msg[:i+1],  interdelay)
+    sleep(delay)
+
+def c64boot():
+    textscrollin("Loading shaders 0/0", 3, 0.1)
+    textswait(["oh wait", ""], 1, 5)
+    textwait("ERR DIVISION BY ZERO", 3)
+    textswait(["READY.\r", "READY."], 0.5, 10)
+    textswait(["RUN\r", "RUN"], 0.5, 10)
+
 #wavings()
 
-gol(9999)
+#gol(9999)
+
+c64boot()
 
 1/0
 
