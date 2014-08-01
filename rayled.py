@@ -530,7 +530,15 @@ def surround(buf, style, pos):
     return buf
 
 def suchdisco():
-    font = fromimg("festival.png")
+    #font = fromimg("festival.png")
+    font = fromgfx(
+"                                      ",
+"xxxx xxxx  xxx xxxxx xxx x  x  xx  x  ",
+"x    x    x      x    x  x  x      x  ",
+"xxx  xxx   xx    x    x  x  x  xx  x  ",
+"x    x       x   x    x  x x  x xx x  ",
+"x    xxxx xxx    x   xxx  x   x  x xxx"
+)
     font = center(font)
     print len(font)
     for i in range(200):
