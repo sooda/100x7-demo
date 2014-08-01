@@ -8,7 +8,7 @@ import struct
 import pyaudio
 from sys import stdout
 from random import randint
-from Queue import Queue
+from Queue import Queue,Empty
 import threading
 
 paudio = pyaudio.PyAudio()
@@ -192,20 +192,34 @@ def audlol(qu,au,w,sz):
         qu.put(fr)
         au.write(fr)
 
-def fft():
+fftsz = 1024
+w=None
+qu=None
+
+def mzkstart():
+    global w,qu
     qu = Queue()
     w = wave.open("house_jam_new.wav")
     #w = wave.open("../audio/dv9.wav")
     #w = wave.open("../audio/dv9_b.wav")
     f=w
-    stream = paudio.open(format = paudio.get_format_from_width(f.getsampwidth()),  
-                channels = f.getnchannels(),  
-                rate = f.getframerate(),  
+    stream = paudio.open(format = paudio.get_format_from_width(f.getsampwidth()),
+                channels = f.getnchannels(),
+                rate = f.getframerate(),
                 output = True)
-    fftsz = 1024
     th = threading.Thread(target=audlol,args=(qu,stream,w,fftsz))
     #qu.put("\x00" * 2048)
     th.start()
+
+def fft():
+    global qu
+    # flush
+    try:
+        while True:
+            qu.get_nowait()
+    except Empty:
+        pass
+
     rate = w.getframerate()
     nfr = w.getnframes()
     dur = rate * 10 # in samples, 10 secs
@@ -620,9 +634,9 @@ def finals():
     msgs = [
             "PERSKARHUNEN BROS   ",
             "A SEVEN SOMETHING   ",
-            "SOODA  --- CODE,GFX ",
-            "PETE_K --- GFX,MUSIC",
-            "END. PISS OFF       "
+            "sooda  --- CODE,GFX ",
+            "Pete_K --- GFX,MUSIC",
+            "END. piss off       "
     ]
     for m in msgs:
         base = text(m)
@@ -644,9 +658,11 @@ def main():
     s.write("\x80")
     s.write(emptys(CHARS))
 
-    fft()
+    mzkstart()
 
     c64boot()
+
+    fft()
 
     dispslideover([0] * 100)
     dispslideover([0x7f] * 100, 0)
