@@ -193,7 +193,7 @@ def audlol(qu,au):
 def fft():
     p = pyaudio.PyAudio()
     qu = Queue()
-    w = wave.open("house_jam_8bit.wav")
+    w = wave.open("house_jam_new.wav")
     #w = wave.open("../audio/dv9.wav")
     #w = wave.open("../audio/dv9_b.wav")
     f=w
@@ -205,8 +205,8 @@ def fft():
     th.start()
     rate = w.getframerate()
     nfr = w.getnframes()
-    fftsz = 4096
-    #dur = rate * 10 # in samples, 10 secs
+    fftsz = 2048
+    dur = rate * 10 # in samples, 10 secs
     dur=nfr
     data = w.readframes(dur)
     #stream.write(data)
@@ -221,15 +221,15 @@ def fft():
 
             ft = np.fft.rfft(frames)[1:]
             nbins = 5*20
-            perbin = int(np.ceil(fftsz/2.0 / nbins))
-            #print nbins,perbin
+            perbinlin = int(np.ceil(fftsz/2.0 / nbins))
+            #print nbins,perbinlin
             bins = [0.0] * nbins
             L = np.log10
             lol = nbins / L(fftsz/2)
             LIN_X = False
             for i, v in enumerate(ft):
                 if LIN_X:
-                    bini = i // perbin
+                    bini = i // perbinlin
                 else:
                     bini = int(L(1 + i) * lol)
                     bini = min(bini,nbins-1)
@@ -238,8 +238,8 @@ def fft():
             m = max(bins)
             if m == 0:
                 m = 1
-            scal=3
-            scal2=20
+            scal=5
+            scal2=40
             #print bins
             bins = [np.log10(scal*x/m+1) for x in bins]
             #print bins
@@ -428,7 +428,7 @@ def invader():
         else:
             displol(splitscreen(xriin))
         sleep(0.05)
-    slideover([0]*100, bigshipgfx, 0.07)
+    slideover([0]*100, bigshipgfx, 0.03)
 
 def golneighs(game, x, y):
     n = 0
@@ -547,8 +547,8 @@ def c64boot():
     textscrollin("Compiling shader 0/0", 3, 0.1)
     #textswait(["oh wait", ""], 1, 5)
     textwait("?ERR DIVIDE BY ZERO", 3)
-    textswait(["READY.\r", "READY."], 0.5, 10)
-    textswait(["RUN\r", "RUN"], 0.5, 10)
+    textswait(["READY.\r", "READY."], 0.5, 6)
+    textswait(["RUN\r", "RUN"], 0.5, 6)
 
 def surround(buf, style, pos):
     style2 = style + style
@@ -640,6 +640,8 @@ def main():
     s.write("\x80")
     s.write(emptys(CHARS))
 
+    fft()
+
     c64boot()
 
     dispslideover([0] * 100)
@@ -653,6 +655,7 @@ def main():
 
     nanamsg()
     nanana()
+    nyan()
     bata = Image.open("batarang.png").load()
     batana(bata, 2, 0.07)
 
