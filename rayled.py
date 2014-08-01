@@ -37,6 +37,17 @@ def text(tx):
     return r
 # 5x7
 
+# fromgfx(row0,row1,row2,..) rows same len
+def fromgfx(*text):
+    cols = len(text[0])
+    data = [0] * cols
+    for y, row in enumerate(text):
+        mask = 1 << y
+        for x, v in enumerate(row):
+            if v != " ":
+                data[x] |= mask
+    return data
+
 CHARS = 20
 
 def empty():
