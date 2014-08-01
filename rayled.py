@@ -320,7 +320,67 @@ def invader():
 #nanana()
 #batana()
 
-def gol():
+def golneighs(game, x, y):
+    n = 0
+    for yi in range(-1, 2):
+        yii = (7 + (y + yi)) % 7
+        mask = 1 << yii
+        for xi in range(-1, 2):
+            xii = (100 + (x + xi)) % 100
+            if game[xii] & mask and not (xi == 0 and yi == 0):
+                n += 1
+    return n
+
+def golnext(game):
+    newgame = [0] * 100
+    for x, v in enumerate(game):
+        for y in range(7):
+            mask = 1 << y
+            neighs = golneighs(game, x, y)
+            if v & mask:
+                if neighs == 2 or neighs == 3:
+                    newgame[x] |= mask
+            else:
+                if neighs == 3:
+                    newgame[x] |= mask
+    return newgame
+
+def gol(iters):
+    game = [0] * 100
+    glider = fromgfx(
+            " x ",
+            "  x",
+            "xxx"
+            )
+    lwss = fromgfx(
+            "x  x ",
+            "    x",
+            "x   x",
+            " xxxx"
+            )
+    beacon = fromgfx(
+            "xx  ",
+            "xx  ",
+            "  xx",
+            "  xx"
+            )
+    toad = fromgfx(
+            " xxx",
+            "xxx "
+            )
+    blit(game, glider, 0, 0)
+    blit(game, glider, 5, 0)
+    blit(game, lwss, 10, 0)
+    blit(game, beacon, 10*5, 0)
+    blit(game, beacon, 12*5, 0)
+    blit(game, toad, 14*5, 2)
+    game[1+18*5] = 0x70
+    game[5+18*5] = 0x07
+    #game[2+19*5] = 0x77
+    for n in range(iters):
+        displol(game)
+        game = golnext(game)
+        sleep(0.2)
 
 def wavings():
     freq1 = 2.0 * 2 * np.pi / 120
@@ -341,7 +401,7 @@ def wavings():
 
 #wavings()
 
-gol()
+gol(9999)
 
 1/0
 
