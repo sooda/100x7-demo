@@ -53,12 +53,12 @@ def bar(i):
 def emptys(n):
     return empty() * n
 
-def readimg(pix,xstart,xlen=5):
+def readimg(pix,xstart,xlen=5,ystart=0):
     cols = []
     for x in range(xstart,xstart+xlen):
         thiscol = 0
         for y in range(7):
-            black = pix[x,6-y][0] == 0
+            black = pix[x,ystart+6-y][0] == 0
             thiscol <<= 1
             thiscol |= int(black)
         cols.append(thiscol)
@@ -114,11 +114,12 @@ def waves():
     return r
 
 def dispmsg(n):
-    msg1 = "DOT  *  DEMOKERHO  *  ALT  *  SKROLLI  *  HACKLAB  *  "
+    #msg1 = "DOT  *  DEMOKERHO  *  ALT  *  SKROLLI  *  HACKLAB  *  "
+    msg1 = "100 * 7 pixels  //  under 24 hours of coding  //  under 2.4 hours of sleep  //  about 2.4 seconds of ideas  //  nothing better to do  //  FEELS BATMAN               Perskarhunen Bros humbly presents LED \"MEGA\"DEMO                                   "
     # msg longer than CHARS plz
     msg = msg1 * 2
     totgfx = text(msg)
-    totgfx = 10 * waves() + totgfx
+    totgfx = 3 * waves() + [0,0,0,0,0] + totgfx
 
     pos = 0
     for x in range(n * (len(msg1)*5 - CHARS)):
@@ -192,7 +193,8 @@ def audlol(qu,au):
 def fft():
     p = pyaudio.PyAudio()
     qu = Queue()
-    w = wave.open("../audio/dv9.wav")
+    w = wave.open("house_jam_8bit.wav")
+    #w = wave.open("../audio/dv9.wav")
     #w = wave.open("../audio/dv9_b.wav")
     f=w
     stream = p.open(format = p.get_format_from_width(f.getsampwidth()),  
@@ -203,7 +205,7 @@ def fft():
     th.start()
     rate = w.getframerate()
     nfr = w.getnframes()
-    fftsz = 2048
+    fftsz = 4096
     #dur = rate * 10 # in samples, 10 secs
     dur=nfr
     data = w.readframes(dur)
@@ -224,16 +226,24 @@ def fft():
             bins = [0.0] * nbins
             L = np.log10
             lol = nbins / L(fftsz/2)
+            LIN_X = False
             for i, v in enumerate(ft):
-                #bini = i // perbin
-                bini = int(L(1 + i) * lol)
-                bini = min(bini,nbins-1)
+                if LIN_X:
+                    bini = i // perbin
+                else:
+                    bini = int(L(1 + i) * lol)
+                    bini = min(bini,nbins-1)
                 #print i,bini
                 bins[bini] += abs(v)
             m = max(bins)
-            bins = [np.log10(x/m+1) for x in bins]
+            if m == 0:
+                m = 1
+            scal=3
+            scal2=20
             #print bins
-            msg = [barof(min(7, int(100*x))) for x in bins]
+            bins = [np.log10(scal*x/m+1) for x in bins]
+            #print bins
+            msg = [barof(min(7, int(scal2*x))) for x in bins]
             s.write(["\x80"] + msg)
             #s.write(["\x80"] + map(barof, range(8)))
 
@@ -243,6 +253,18 @@ def fft():
     except KeyboardInterrupt:
         pass
     qu.put([])
+
+def nanamsg():
+    for i in range(3):
+        for na in range(1,11):
+            nas = "NA" * na
+            displol(text(nas))
+            sleep(0.2)
+        for na in range(1,11):
+            nas = "  " * (na) + "NA" * (10 - na)
+            displol(text(nas))
+            sleep(0.2)
+
 
 def nanana():
     im = Image.open("batman.png")
@@ -271,7 +293,7 @@ def batana(pix,pers=2,matban=0.07):
     #im = Image.open("batarang.png")
     #pix = im.load()
     shit=-1
-    for shitfuk in range(100):
+    for shitfuk in range(10):
         for starty in range(0,8*7,7):
             shit += pers
             cols = [0] * 100
@@ -317,6 +339,29 @@ def slideover(scr, slider, interdelay):
         displol(target)
         target[i] = scr[i]
         sleep(interdelay)
+
+def slideovers(scr, sliders, interdelay):
+    target = [0] * len(scr)
+    sz = len(sliders[0])
+    empty = [0] * sz
+    sli = 0
+    for i, n in enumerate(scr):
+        target[i:i+sz] = empty
+        blit(target, sliders[sli], i, 0)
+        sli += 1
+        sli %= len(sliders)
+        displol(target)
+        target[i] = scr[i]
+        sleep(interdelay)
+
+def nyan():
+    img = Image.open("nyan.png")
+    pix = img.load()
+    a = readimg(pix, 0, img.size[0])
+    b = readimg(pix, 0, img.size[0], ystart=7)
+    skr = [0x11, 0x22, 0x44, 0x22] * 25
+
+    slideovers(skr, [a,b],0.1)
 
 def invader():
     invagfx = fromgfx(
@@ -452,7 +497,7 @@ def wavings():
     spikes = 1.0 * 2 * np.pi / 120
     tt = 1.1111
     tt2=0
-    for time in range(1000):
+    for time in range(200):
         asd = []
         for x in range(120):
             s1 = np.sin((x + tt*time) * freq1)
@@ -499,7 +544,7 @@ def textscrollin(msg, delay, interdelay):
     sleep(delay)
 
 def c64boot():
-    textscrollin("Loading shaders 0/0", 3, 0.1)
+    textscrollin("Compiling shader 0/0", 3, 0.1)
     #textswait(["oh wait", ""], 1, 5)
     textwait("?ERR DIVIDE BY ZERO", 3)
     textswait(["READY.\r", "READY."], 0.5, 10)
@@ -553,13 +598,41 @@ def suchdisco():
     fest = center(fest)
     asm = center(asm)
     for i in range(200):
-        thisfont = fest if i & 16 else asm
+        thisfont = fest if i & 32 else asm
         scr = thisfont if i & 8 else [0] * 100
         scr = surround(scr, "xxx   xxx   ", i)
         #scr = surround(scr, "xxxxxxx       ", i)
         displol(scr)
         sleep(0.07)
 
+
+def andmask(a,b):
+    return [x&y for x,y in zip(a,b)]
+
+def xormask(a,b):
+    return [x^y for x,y in zip(a,b)]
+
+def finals():
+    msgs = [
+            "PERSKARHUNEN BROS   ",
+            "A SEVEN SOMETHING   ",
+            "SOODA  --- CODE,GFX ",
+            "PETE_K --- GFX,MUSIC",
+            "END. PISS OFF       "
+    ]
+    for m in msgs:
+        base = text(m)
+        current = [0] * 100
+        for repeat in range(5):
+            mask = 0
+            for y in range(0,7):
+                mask = 1 << y
+                line = [mask] * 100
+                disp = andmask(base, line)
+                current = xormask(current, disp)
+                displol(current)
+                sleep(0.03)
+        sleep(1)
 
 def main():
     global s
@@ -568,8 +641,29 @@ def main():
     s.write(emptys(CHARS))
 
     c64boot()
+
     dispslideover([0] * 100)
     dispslideover([0x7f] * 100, 0)
+
+    #fft()
+
+    dispmsg(1)
+
+    wavings()
+
+    nanamsg()
+    nanana()
+    bata = Image.open("batarang.png").load()
+    batana(bata, 2, 0.07)
+
+    suchdisco()
+
+    invader()
+    gol(100)
+
+    finals()
+
+    return
 
     #suchdisco()
     cubeanim = Image.open("cubeanim.png").load()
@@ -578,26 +672,13 @@ def main():
     bata = Image.open("batarang.png").load()
     #batana(bata, 2, 0.07)
 
-    #invader()
-    #1/0
-
-    #nanana()
-    #batana()
-    #wavings()
-
-    #gol(9999)
-
-    #c64boot()
-    #fft()
-
-
     return
 
-    while True:
-        m = dispmsg(2)
-        dispslideover2(m)
-        m = dispmsg(2)
-        dispslideoverb(m)
+#while True:
+#    m = dispmsg(2)
+#    dispslideover2(m)
+#    m = dispmsg(2)
+#    dispslideoverb(m)
 
 if __name__ == "__main__":
     main()
