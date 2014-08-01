@@ -117,14 +117,14 @@ def waves():
 
 def dispmsg(n):
     #msg1 = "DOT  *  DEMOKERHO  *  ALT  *  SKROLLI  *  HACKLAB  *  "
-    msg1 = "100 * 7 pixels  //  under 24 hours of coding  //  under 2.4 hours of sleep  //  about 2.4 seconds of ideas  //  because why not  //  FEELS BATMAN               Perskarhunen Bros humbly presents LED \"MEGA\"DEMO                                   "
+    msg1 = "100 * 7 pixels  //  under 24 hours of coding  //  less than 2.4 hours of sleep  //  about 2.4 seconds of ideas  //  because why not  //  FEELS BATMAN               Perskarhunen Bros humbly presents partycoded LED \"MEGA\"DEMO                                   "
     # msg longer than CHARS plz
     msg = msg1 * 2
     totgfx = text(msg)
     totgfx = 3 * waves() + [0,0,0,0,0] + totgfx
 
     pos = 0
-    for x in range(n * (len(msg1)*5 - CHARS)):
+    for x in range(n * (len(msg1)*5 - 5*CHARS)):
         s.write("\x80")
         #s.write(emptys(CHARS))
         ms = totgfx[pos:pos+CHARS*5+1]
@@ -199,7 +199,7 @@ qu=None
 def mzkstart():
     global w,qu
     qu = Queue()
-    w = wave.open("house_jam_new.wav")
+    w = wave.open("persbros_demo_led.wav")
     #w = wave.open("../audio/dv9.wav")
     #w = wave.open("../audio/dv9_b.wav")
     f=w
@@ -228,7 +228,7 @@ def fft():
     #stream.write(data)
     spos = 0
     try:
-        while True:
+        for i in range(4*44100/fftsz):
             data = qu.get()
             datai = data#[:len(data)/2]#[2*spos:2*spos+2*fftsz]
             #stream.write(datai)
@@ -298,13 +298,13 @@ def nanana():
                 sample = pix[6 * xblk + blkpos,starty+y]
                 if sample[0] == 0:
                     cols[x] += 1 << y
-                    stdout.write("*")
+                    #stdout.write("*")
                 else:
-                    stdout.write(" ")
-            stdout.write("\n")
+                    pass#stdout.write(" ")
+            #stdout.write("\n")
         s.write(["\x80"] + cols)
-        stdout.write("\n")
-        stdout.write("\n")
+        #stdout.write("\n")
+        #stdout.write("\n")
         sleep(0.08)
 
 def batana(pix,pers=2,matban=0.07):
@@ -322,13 +322,13 @@ def batana(pix,pers=2,matban=0.07):
                     sample = pix[max(0,-shit + 6 * xblk + blkpos),starty+y]
                     if sample[0] == 0:
                         cols[x] += 1 << y
-                        stdout.write("*")
+                        #stdout.write("*")
                     else:
-                        stdout.write(" ")
-                stdout.write("\n")
+                        pass#stdout.write(" ")
+                #stdout.write("\n")
             s.write(["\x80"] + cols)
-            stdout.write("\n")
-            stdout.write("\n")
+            #stdout.write("\n")
+            #stdout.write("\n")
             sleep(matban)
 
 def splitscreen(src):
@@ -473,7 +473,7 @@ def golnext(game):
                     newgame[x] |= mask
     return newgame
 
-def gol(iters):
+def gol(iters,fastiters):
     game = [0] * 100
     glider = fromgfx(
             " x ",
@@ -499,9 +499,11 @@ def gol(iters):
     blit(game, glider, 0, 0)
     blit(game, glider, 5, 0)
     blit(game, lwss, 10, 0)
+    blit(game, lwss, 20, 0)
     blit(game, beacon, 10*5, 0)
     blit(game, beacon, 12*5, 0)
     blit(game, toad, 14*5, 2)
+    blit(game,glider,16*5,2)
     game[1+18*5] = 0x70
     game[5+18*5] = 0x07
     #game[2+19*5] = 0x77
@@ -509,19 +511,23 @@ def gol(iters):
         displol(game)
         game = golnext(game)
         sleep(0.2)
+    for n in range(fastiters):
+        displol(game)
+        game = golnext(game)
+        sleep(0.04)
 
 def wavings():
     freq1 = 2.0 * 2 * np.pi / 120
-    spikes = 1.0 * 2 * np.pi / 120
+    spikes = 4.0 * 2 * np.pi / 120
     tt = 1.1111
-    tt2=0
-    for time in range(200):
+    tt2=2
+    for time in range(4*50):
         asd = []
         for x in range(120):
             s1 = np.sin((x + tt*time) * freq1)
             s2 = np.sin((x - tt*time) * freq1)
             s3 = np.sin((x - tt2*time) * spikes)
-            color= (s1+s2)/2*s3
+            color= (s1+s2+s3)/3
             color /= 2
             color += 0.5
             asd.append(0x7f & (1 << (int(7*color))))
@@ -562,11 +568,11 @@ def textscrollin(msg, delay, interdelay):
     sleep(delay)
 
 def c64boot():
-    textscrollin("Compiling shader 0/0", 3, 0.1)
+    textscrollin("Compiling shader 0/0", 3, 0.06)
     #textswait(["oh wait", ""], 1, 5)
-    textwait("?ERR DIVIDE BY ZERO", 3)
-    textswait(["READY.\r", "READY."], 0.5, 6)
-    textswait(["RUN\r", "RUN"], 0.5, 6)
+    textwait("?ERR DIVIDE BY ZERO", 2)
+    textswait(["READY.\r", "READY."], 0.5, 5)
+    textswait(["RUN\r", "RUN"], 0.5, 4)
 
 def surround(buf, style, pos):
     style2 = style + style
@@ -658,10 +664,13 @@ def main():
     s.write("\x80")
     s.write(emptys(CHARS))
 
+    gol(100,100)
+    return
     mzkstart()
 
     c64boot()
 
+    wavings()
     fft()
 
     dispslideover([0] * 100)
@@ -670,8 +679,6 @@ def main():
     #fft()
 
     dispmsg(1)
-
-    wavings()
 
     nanamsg()
     nanana()
@@ -682,7 +689,7 @@ def main():
     suchdisco()
 
     invader()
-    gol(100)
+    gol(100,100)
 
     finals()
 
