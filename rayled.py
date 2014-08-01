@@ -8,6 +8,8 @@ import struct
 import pyaudio
 from sys import stdout
 from random import randint
+from Queue import Queue
+import threading
 
 im = Image.open("font.png")
 pix = im.load()
@@ -24,6 +26,19 @@ def fromgfx(*text):
             if v != " ":
                 data[x] |= mask
     return data
+
+def toasciiart(screen):
+    rows = []
+    for y in range(7):
+        mask = 1 << y
+        row = []
+        for x in screen:
+            if x & mask:
+                row.append("x")
+            else:
+                row.append(" ")
+        rows.append("".join(row))
+    return rows
 
 CHARS = 20
 
@@ -82,10 +97,7 @@ def text(tx):
     for t in tx:
         r.extend(glyph(t))
     return r
-s = serial.Serial("/dev/ttyUSB0", 38400)
 
-s.write("\x80")
-s.write(emptys(CHARS))
 
 def displol(row):
     s.write(["\x80"] + row)
@@ -166,8 +178,6 @@ def barof(height):
 
 
 
-from Queue import Queue
-import threading
 
 def audlol(qu,au):
     while True:
@@ -279,8 +289,6 @@ def batana():
             stdout.write("\n")
             sleep(0.07)
 
-#fft()
-
 def splitscreen(src):
     dst = [0] * 100
     for i, v in enumerate(src):
@@ -374,12 +382,6 @@ def invader():
             displol(splitscreen(xriin))
         sleep(0.05)
     slideover([0]*100, bigshipgfx, 0.07)
-
-#invader()
-#1/0
-
-#nanana()
-#batana()
 
 def golneighs(game, x, y):
     n = 0
@@ -530,6 +532,7 @@ def surround(buf, style, pos):
 def suchdisco():
     font = fromimg("festival.png")
     font = center(font)
+    print len(font)
     for i in range(200):
         scr = font if i & 8 else [0] * 100
         scr = surround(scr, "xxx   xxx   ", i)
@@ -538,19 +541,37 @@ def suchdisco():
         sleep(0.07)
 
 
-#wavings()
+def main():
+    global s
+    s = serial.Serial("/dev/ttyUSB0", 38400)
 
-#gol(9999)
+    s.write("\x80")
+    s.write(emptys(CHARS))
 
-#c64boot()
+    suchdisco()
 
-suchdisco()
 
-1/0
+    #invader()
+    #1/0
 
-while True:
-    m = dispmsg(2)
-    dispslideover2(m)
-    m = dispmsg(2)
-    dispslideoverb(m)
+    #nanana()
+    #batana()
+    #wavings()
+
+    #gol(9999)
+
+    #c64boot()
+    #fft()
+
+
+    1/0
+
+    while True:
+        m = dispmsg(2)
+        dispslideover2(m)
+        m = dispmsg(2)
+        dispslideoverb(m)
+
+if __name__ == "__main__":
+    main()
 
