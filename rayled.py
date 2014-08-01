@@ -1,3 +1,4 @@
+# -*- encoding: utf8 -*-
 import serial
 from PIL import Image
 from time import sleep
@@ -48,7 +49,7 @@ def readimg(xstart):
 
 _fontcache = {}
 _fontcache["\r"] = ["\x7f"] * 5
-_fontcache["å"] = fromgfx(
+_fontcache[u"å"] = fromgfx(
         " xx  ",
         " xx  ",
         " xxx ",
@@ -56,7 +57,7 @@ _fontcache["å"] = fromgfx(
         "x xx ",
         " x x "
         )
-_fontcache["Å"] = fromgfx(
+_fontcache[u"Å"] = fromgfx(
         " xx  ",
         " xx  ",
         "x  x ",
@@ -454,12 +455,18 @@ def wavings():
             asd.append(0x7f & (1 << (int(7*color))))
         displol(splitscreen(asd))
 
+def padtext(txt, sz=20):
+    return txt + " " * (sz - len(txt))
+
+def centertext(txt):
+    spos = 10 - len(txt)/2
+    return padtext(" "*spos + txt)
 
 def disptext(msg):
     displol(text(msg))
 
 def textwait(msg, delay):
-    disptext(msg + " " * (20 - len(msg)))
+    disptext(padtext(msg))
     sleep(delay)
 
 def textswait(msgs, delay, cycles):
@@ -480,11 +487,49 @@ def c64boot():
     textswait(["READY.\r", "READY."], 0.5, 10)
     textswait(["RUN\r", "RUN"], 0.5, 10)
 
+def surround(buf, style, pos):
+    style2 = style + style
+    # strip top and bottom 0x3e = 0111110
+    buf = [b & 0x3e for b in buf]
+    # top
+    buf = [b |
+            (1 if style[(pos+i) % len(style)] != " " else 0)
+            for i,b in enumerate(buf)]
+    # right
+    corner = (pos+len(buf)-1) % len(style)
+    rows = style2[corner:corner+8]
+    rows = rows[:7]
+    buf[-1] = fromgfx(*list(rows))[0]
+
+    # bottom
+    buf = [b |
+            (0x40 if style[(pos+len(buf)-1+7+i*(len(style)-1)) % len(style)] != " " else 0)
+            for i,b in enumerate(buf)]
+
+    # left
+    corner = ((len(style)-1)*pos+len(buf)-1+7-len(buf)) % len(style)
+    rows = style2[corner:corner+8]
+    rows = rows[:7]
+    buf[0] = fromgfx(*list(rows))[0]
+    return buf
+
+def suchdisco():
+    for i in range(200):
+        txt = centertext(u"FESTIVåL" if i & 8 else "")
+        scr = text(txt)
+        scr = surround(scr, "xxx   xxx   ", i)
+        #scr = surround(scr, "xxxxxxx       ", i)
+        displol(scr)
+        sleep(0.07)
+
+
 #wavings()
 
 #gol(9999)
 
 #c64boot()
+
+suchdisco()
 
 1/0
 
