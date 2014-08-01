@@ -117,7 +117,7 @@ def waves():
 
 def dispmsg(n):
     #msg1 = "DOT  *  DEMOKERHO  *  ALT  *  SKROLLI  *  HACKLAB  *  "
-    msg1 = "100 * 7 pixels  //  under 24 hours of coding  //  less than 2.4 hours of sleep  //  about 2.4 seconds of ideas  //  because why not  //  FEELS BATMAN               Perskarhunen Bros humbly presents a partycoded LED \"MEGA\"DEMO                                   "
+    msg1 = "100 * 7 pixels  //  < 24 hours of coding  //  < 2.4 hours of sleep  //  about 2.4 seconds of ideas  //  because why not  //  FEELS BATMAN               Perskarhunen Bros humbly presents a partycoded LED \"MEGA\"DEMO                                   "
     # msg longer than CHARS plz
     msg = msg1 * 2
     totgfx = text(msg)
@@ -307,7 +307,7 @@ def loading():
 def nanana():
     im = Image.open("batman.png")
     pix = im.load()
-    for starty in range(220):
+    for starty in range(200):
         if starty & 1:
             continue
         cols = [0] * 100
@@ -325,7 +325,7 @@ def nanana():
         s.write(["\x80"] + cols)
         #stdout.write("\n")
         #stdout.write("\n")
-        sleep(0.12)
+        sleep(0.09)
 
 def batana(pix,pers=2,matban=0.07):
     #im = Image.open("batarang.png")
@@ -668,7 +668,7 @@ def finals():
     for m in msgs:
         base = text(m)
         current = [0] * 100
-        for repeat in range(5):
+        for repeat in range(9):
             mask = 0
             for y in range(0,7):
                 mask = 1 << y
@@ -685,13 +685,10 @@ def main():
     s.write("\x80")
     s.write(emptys(CHARS))
 
-    nanana()
-    return
     mzkstart()
     a=time()
 
     c64boot()
-    print time()-a
 
     wavings()
     fft()
