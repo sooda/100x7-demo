@@ -48,6 +48,22 @@ def readimg(xstart):
 
 _fontcache = {}
 _fontcache["\r"] = ["\x7f"] * 5
+_fontcache["å"] = fromgfx(
+        " xx  ",
+        " xx  ",
+        " xxx ",
+        "x  x ",
+        "x xx ",
+        " x x "
+        )
+_fontcache["Å"] = fromgfx(
+        " xx  ",
+        " xx  ",
+        "x  x ",
+        "xxxx ",
+        "x  x ",
+        "x  x "
+        )
 def glyph(ch):
     gfx = _fontcache.get(ch)
     if gfx is None:
@@ -275,16 +291,47 @@ def blit(dst,src,x,y):
         else:
             dst[x+i] |= v >> -y
 
+def slideover(scr, slider, interdelay):
+    target = [0] * len(scr)
+    sz = len(slider)
+    empty = [0] * sz
+    for i, n in enumerate(scr):
+        target[i:i+sz] = empty
+        blit(target, slider, i, 0)
+        displol(target)
+        target[i] = scr[i]
+        sleep(interdelay)
+
 def invader():
+    invagfx = fromgfx(
+            "   x   x   ",
+            "  xxxxxxx  ",
+            " xx xxx xx ",
+            "xxxxxxxxxxx",
+            "x xxxxxxx x",
+            "  x     x  ",
+            "   xx xx   "
+            )
+    bigshipgfx = fromgfx(
+            "xx   ",
+            " xx  ",
+            "  xx ",
+            "   xx",
+            "  xx ",
+            " xx  ",
+            "xx   "
+            )
     plus = [0x2, 0x7, 0x2]
     ship = [5, 2]
     block = [3, 3]
     ammo = [1]
-    blks = [[randint(5,95),randint(0,5)] for _ in range(10)]
+    blkcount = 20
+    blks = [[randint(20,200),randint(0,5)] for _ in range(blkcount)]
     blks.sort()
     ammoflying = 0
     ammox = ammoy = 0
     shipy = 0
+    startup = True
     while True:
         for bl in blks:
             bl[0] -= 1
@@ -306,17 +353,24 @@ def invader():
         elif shipy + 1 < blks[nextshoot][1]:
             shipy += 1
 
-        xriin = [0] * 100
+        xriin = [0] * 120
         blit(xriin, ship, 0, shipy)
         if ammoflying:
             blit(xriin, ammo, ammox, ammoy)
         for b in blks:
-            blit(xriin,block,b[0],b[1])
+            if b[0] < 119:
+                blit(xriin,block,b[0],b[1])
         #displol((xriin))
-        displol(splitscreen(xriin))
+        if startup:
+            startup = False
+            slideover(splitscreen(xriin), invagfx, 0.1)
+        else:
+            displol(splitscreen(xriin))
         sleep(0.05)
+    slideover([0]*100, bigshipgfx, 0.07)
 
 #invader()
+#1/0
 
 #nanana()
 #batana()
@@ -430,7 +484,7 @@ def c64boot():
 
 #gol(9999)
 
-c64boot()
+#c64boot()
 
 1/0
 
