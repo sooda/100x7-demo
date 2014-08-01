@@ -36,9 +36,9 @@ def bar(i):
 def emptys(n):
     return empty() * n
 
-def readimg(xstart):
+def readimg(pix,xstart,xlen=5):
     cols = []
-    for x in range(xstart,xstart+5):
+    for x in range(xstart,xstart+xlen):
         thiscol = 0
         for y in range(7):
             black = pix[x,6-y][0] == 0
@@ -46,6 +46,11 @@ def readimg(xstart):
             thiscol |= int(black)
         cols.append(thiscol)
     return cols
+
+def fromimg(pathname):
+    img = Image.open(pathname)
+    pix = img.load()
+    return readimg(pix, 0, img.size[0])
 
 _fontcache = {}
 _fontcache["\r"] = ["\x7f"] * 5
@@ -68,7 +73,7 @@ _fontcache[u"Å"] = fromgfx(
 def glyph(ch):
     gfx = _fontcache.get(ch)
     if gfx is None:
-        gfx = readimg((ord(ch)-ord(' ')) * 5)
+        gfx = readimg(pix,(ord(ch)-ord(' ')) * 5)
         _fontcache[ch] = gfx
     return gfx
 
@@ -462,6 +467,11 @@ def centertext(txt):
     spos = 10 - len(txt)/2
     return padtext(" "*spos + txt)
 
+def center(gfx):
+    spos = 50 - len(gfx)/2
+    empty = [0] * spos
+    return empty + gfx + empty
+
 def disptext(msg):
     displol(text(msg))
 
@@ -514,9 +524,10 @@ def surround(buf, style, pos):
     return buf
 
 def suchdisco():
+    font = fromimg("festival.png")
+    font = center(font)
     for i in range(200):
-        txt = centertext(u"FESTIVåL" if i & 8 else "")
-        scr = text(txt)
+        scr = font if i & 8 else [0] * 100
         scr = surround(scr, "xxx   xxx   ", i)
         #scr = surround(scr, "xxxxxxx       ", i)
         displol(scr)
