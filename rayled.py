@@ -14,6 +14,8 @@ import threading
 im = Image.open("font.png")
 pix = im.load()
 
+s = None
+
 # 5x7
 
 # fromgfx(row0,row1,row2,..) rows same len
@@ -147,12 +149,12 @@ def dispupdown():
             if i == 0:
                 j = 0
 
-def dispslideover(prev):
+def dispslideover(prev, blk=0x7f):
     msg = prev
     for x in range(CHARS * 5):
+        msg[x] = blk
         s.write("\x80")
         s.write(msg)
-        msg[x] = 0x7f
         #sleep(0.01)
 
 def dispslideoverb(prev):
@@ -265,13 +267,13 @@ def nanana():
         stdout.write("\n")
         sleep(0.08)
 
-def batana():
-    im = Image.open("batarang.png")
-    pix = im.load()
+def batana(pix,pers=2,matban=0.07):
+    #im = Image.open("batarang.png")
+    #pix = im.load()
     shit=-1
     for shitfuk in range(100):
         for starty in range(0,8*7,7):
-            shit += 2
+            shit += pers
             cols = [0] * 100
             for y in range(7):
                 for x in range(0,100):
@@ -287,7 +289,7 @@ def batana():
             s.write(["\x80"] + cols)
             stdout.write("\n")
             stdout.write("\n")
-            sleep(0.07)
+            sleep(matban)
 
 def splitscreen(src):
     dst = [0] * 100
@@ -498,8 +500,8 @@ def textscrollin(msg, delay, interdelay):
 
 def c64boot():
     textscrollin("Loading shaders 0/0", 3, 0.1)
-    textswait(["oh wait", ""], 1, 5)
-    textwait("ERR DIVISION BY ZERO", 3)
+    #textswait(["oh wait", ""], 1, 5)
+    textwait("?ERR DIVIDE BY ZERO", 3)
     textswait(["READY.\r", "READY."], 0.5, 10)
     textswait(["RUN\r", "RUN"], 0.5, 10)
 
@@ -531,18 +533,28 @@ def surround(buf, style, pos):
 
 def suchdisco():
     #font = fromimg("festival.png")
-    font = fromgfx(
-"                                      ",
-"xxxx xxxx  xxx xxxxx xxx x  x  xx  x  ",
-"x    x    x      x    x  x  x      x  ",
-"xxx  xxx   xx    x    x  x  x  xx  x  ",
-"x    x       x   x    x  x x  x xx x  ",
-"x    xxxx xxx    x   xxx  x   x  x xxx"
+    fest = fromgfx(
+"                                        ",
+"xxxx xxxx  xxx xxxxx xxx x  x  xx  x    ",
+"x    x    x      x    x  x  x      x    ",
+"xxx  xxx   xx    x    x  x  x  xx  x    ",
+"x    x       x   x    x  x x  x xx x    ",
+"x    xxxx xxx    x   xxx  x   x  x xxx  "
 )
-    font = center(font)
-    print len(font)
+    asm = fromgfx(
+"                                                ",
+" xx   xxx  xxx xxx  x x  xxx  x     xx  x       ",
+"x  x x    x    x   xxxxx x  x x    x  x x       ",
+"xxxx  xx   xx  xxx x x x xxx  x    x  x x       ",
+"x  x    x    x x   x   x x  x x    x  x x       ",
+"x  x xxx  xxx  xxx x   x xxx  xxxx  xx  xxxx    "
+)
+
+    fest = center(fest)
+    asm = center(asm)
     for i in range(200):
-        scr = font if i & 8 else [0] * 100
+        thisfont = fest if i & 16 else asm
+        scr = thisfont if i & 8 else [0] * 100
         scr = surround(scr, "xxx   xxx   ", i)
         #scr = surround(scr, "xxxxxxx       ", i)
         displol(scr)
@@ -552,12 +564,19 @@ def suchdisco():
 def main():
     global s
     s = serial.Serial("/dev/ttyUSB0", 38400)
-
     s.write("\x80")
     s.write(emptys(CHARS))
 
-    suchdisco()
+    c64boot()
+    dispslideover([0] * 100)
+    dispslideover([0x7f] * 100, 0)
 
+    #suchdisco()
+    cubeanim = Image.open("cubeanim.png").load()
+    #batana(cubeanim,1,0.07)
+
+    bata = Image.open("batarang.png").load()
+    #batana(bata, 2, 0.07)
 
     #invader()
     #1/0
@@ -572,7 +591,7 @@ def main():
     #fft()
 
 
-    1/0
+    return
 
     while True:
         m = dispmsg(2)
