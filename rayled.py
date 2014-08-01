@@ -11,6 +11,8 @@ from random import randint
 from Queue import Queue
 import threading
 
+paudio = pyaudio.PyAudio()
+
 im = Image.open("font.png")
 pix = im.load()
 
@@ -115,7 +117,7 @@ def waves():
 
 def dispmsg(n):
     #msg1 = "DOT  *  DEMOKERHO  *  ALT  *  SKROLLI  *  HACKLAB  *  "
-    msg1 = "100 * 7 pixels  //  under 24 hours of coding  //  under 2.4 hours of sleep  //  about 2.4 seconds of ideas  //  nothing better to do  //  FEELS BATMAN               Perskarhunen Bros humbly presents LED \"MEGA\"DEMO                                   "
+    msg1 = "100 * 7 pixels  //  under 24 hours of coding  //  under 2.4 hours of sleep  //  about 2.4 seconds of ideas  //  because why not  //  FEELS BATMAN               Perskarhunen Bros humbly presents LED \"MEGA\"DEMO                                   "
     # msg longer than CHARS plz
     msg = msg1 * 2
     totgfx = text(msg)
@@ -182,42 +184,44 @@ def barof(height):
 
 
 
-def audlol(qu,au):
+def audlol(qu,au,w,sz):
     while True:
-        item = qu.get()
-        if len(item) == 0:
+        fr = w.readframes(sz)
+        if len(fr) < sz:
             break
-        au.write(item)
-        qu.task_done()
+        qu.put(fr)
+        au.write(fr)
 
 def fft():
-    p = pyaudio.PyAudio()
     qu = Queue()
     w = wave.open("house_jam_new.wav")
     #w = wave.open("../audio/dv9.wav")
     #w = wave.open("../audio/dv9_b.wav")
     f=w
-    stream = p.open(format = p.get_format_from_width(f.getsampwidth()),  
+    stream = paudio.open(format = paudio.get_format_from_width(f.getsampwidth()),  
                 channels = f.getnchannels(),  
                 rate = f.getframerate(),  
                 output = True)
-    th = threading.Thread(target=audlol,args=(qu,stream))
+    fftsz = 1024
+    th = threading.Thread(target=audlol,args=(qu,stream,w,fftsz))
+    #qu.put("\x00" * 2048)
     th.start()
     rate = w.getframerate()
     nfr = w.getnframes()
-    fftsz = 2048
     dur = rate * 10 # in samples, 10 secs
     dur=nfr
-    data = w.readframes(dur)
+    #data = w.readframes(dur)
     #stream.write(data)
     spos = 0
     try:
         while True:
-            datai = data[2*spos:2*spos+2*fftsz]
+            data = qu.get()
+            datai = data#[:len(data)/2]#[2*spos:2*spos+2*fftsz]
             #stream.write(datai)
-            qu.join()
-            qu.put(datai)
-            frames = struct.unpack("h" * fftsz, datai) # shorts, i guess
+            #qu.join()
+            #qu.put(datai)
+            frames = struct.unpack("h" * 2*fftsz, datai) # shorts, i guess
+            frames=frames[::2]
 
             ft = np.fft.rfft(frames)[1:]
             nbins = 5*20
@@ -239,7 +243,7 @@ def fft():
             if m == 0:
                 m = 1
             scal=5
-            scal2=40
+            scal2=20
             #print bins
             bins = [np.log10(scal*x/m+1) for x in bins]
             #print bins
