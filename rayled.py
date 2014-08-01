@@ -1,7 +1,7 @@
 # -*- encoding: utf8 -*-
 import serial
 from PIL import Image
-from time import sleep
+from time import sleep,time
 import numpy as np
 import wave
 import struct
@@ -117,11 +117,11 @@ def waves():
 
 def dispmsg(n):
     #msg1 = "DOT  *  DEMOKERHO  *  ALT  *  SKROLLI  *  HACKLAB  *  "
-    msg1 = "100 * 7 pixels  //  under 24 hours of coding  //  less than 2.4 hours of sleep  //  about 2.4 seconds of ideas  //  because why not  //  FEELS BATMAN               Perskarhunen Bros humbly presents partycoded LED \"MEGA\"DEMO                                   "
+    msg1 = "100 * 7 pixels  //  under 24 hours of coding  //  less than 2.4 hours of sleep  //  about 2.4 seconds of ideas  //  because why not  //  FEELS BATMAN               Perskarhunen Bros humbly presents a partycoded LED \"MEGA\"DEMO                                   "
     # msg longer than CHARS plz
     msg = msg1 * 2
     totgfx = text(msg)
-    totgfx = 3 * waves() + [0,0,0,0,0] + totgfx
+    totgfx = 8 * waves() + [0,0,0,0,0] + totgfx
 
     pos = 0
     for x in range(n * (len(msg1)*5 - 5*CHARS)):
@@ -199,7 +199,7 @@ qu=None
 def mzkstart():
     global w,qu
     qu = Queue()
-    w = wave.open("persbros_demo_led.wav")
+    w = wave.open("persbros_demo_led-final.wav")
     #w = wave.open("../audio/dv9.wav")
     #w = wave.open("../audio/dv9_b.wav")
     f=w
@@ -272,22 +272,42 @@ def fft():
         pass
     qu.put([])
 
-def nanamsg():
-    for i in range(3):
-        for na in range(1,11):
-            nas = "NA" * na
-            displol(text(nas))
-            sleep(0.2)
-        for na in range(1,11):
-            nas = "  " * (na) + "NA" * (10 - na)
-            displol(text(nas))
-            sleep(0.2)
+def inv(gfx):
+    return [g ^ 0x7f for g in gfx]
 
+def nanamsg():
+    #for i in range(3):
+    for na in range(1,11):
+        nas = "NA" * na
+        displol(text(nas))
+        sleep(0.3)
+        #
+        #for na in range(1,11):
+        #    nas = "  " * (na) + "NA" * (10 - na)
+        #    displol(text(nas))
+        #    sleep(0.2)
+    t = text(nas)
+    for i in range(40):
+        t = inv(t)
+        displol(t)
+        sleep(0.3)
+
+def loading():
+    gfxs = map(text, "Loading ...")
+    for xi in range(0,80):
+        a = [0] * 100
+        for i,ch in enumerate(gfxs):
+            sinlol=np.sin(xi*0.8+i*0.08)
+            xlol = int(xi+(5+sinlol)*i)
+            if xlol < 95:
+                blit(a,ch,xlol,0)
+        displol(a)
+        sleep(0.1)
 
 def nanana():
     im = Image.open("batman.png")
     pix = im.load()
-    for starty in range(150):
+    for starty in range(220):
         if starty & 1:
             continue
         cols = [0] * 100
@@ -296,7 +316,7 @@ def nanana():
                 xblk = x // 5
                 blkpos = x % 5
                 sample = pix[6 * xblk + blkpos,starty+y]
-                if sample[0] == 0:
+                if sample[0] < 100:
                     cols[x] += 1 << y
                     #stdout.write("*")
                 else:
@@ -305,7 +325,7 @@ def nanana():
         s.write(["\x80"] + cols)
         #stdout.write("\n")
         #stdout.write("\n")
-        sleep(0.08)
+        sleep(0.12)
 
 def batana(pix,pers=2,matban=0.07):
     #im = Image.open("batarang.png")
@@ -474,6 +494,7 @@ def golnext(game):
     return newgame
 
 def gol(iters,fastiters):
+    t=time()
     game = [0] * 100
     glider = fromgfx(
             " x ",
@@ -664,11 +685,13 @@ def main():
     s.write("\x80")
     s.write(emptys(CHARS))
 
-    gol(100,100)
+    nanana()
     return
     mzkstart()
+    a=time()
 
     c64boot()
+    print time()-a
 
     wavings()
     fft()
@@ -685,6 +708,8 @@ def main():
     nyan()
     bata = Image.open("batarang.png").load()
     batana(bata, 2, 0.07)
+
+    loading()
 
     suchdisco()
 
