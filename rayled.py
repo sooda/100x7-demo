@@ -680,8 +680,8 @@ def finals():
         sleep(1)
 
 def main():
-    global s
-    s = serial.Serial("/dev/ttyUSB0", 38400)
+    #global s
+    #s = serial.Serial("/dev/ttyUSB0", 38400)
     s.write("\x80")
     s.write(emptys(CHARS))
 
