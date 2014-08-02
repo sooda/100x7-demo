@@ -290,7 +290,7 @@ def nanamsg():
     for i in range(40):
         t = inv(t)
         displol(t)
-        sleep(0.3)
+        sleep(0.14)
 
 def loading():
     gfxs = map(text, "Loading ...")
@@ -316,7 +316,7 @@ def nanana():
                 xblk = x // 5
                 blkpos = x % 5
                 sample = pix[6 * xblk + blkpos,starty+y]
-                if sample[0] < 100:
+                if sample[0] > 100:
                     cols[x] += 1 << y
                     #stdout.write("*")
                 else:
@@ -660,7 +660,7 @@ def xormask(a,b):
 def finals():
     msgs = [
             "PERSKARHUNEN BROS   ",
-            "A SEVEN SOMETHING   ",
+            "100x7           2014",
             "sooda  --- CODE,GFX ",
             "Pete_K --- GFX,MUSIC",
             "END. piss off       "
@@ -702,9 +702,9 @@ def main():
 
     nanamsg()
     nanana()
-    nyan()
     bata = Image.open("batarang.png").load()
     batana(bata, 2, 0.07)
+    nyan()
 
     loading()
 
